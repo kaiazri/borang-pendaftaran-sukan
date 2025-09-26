@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Pertandingan 5x100m Terbuka</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Kejohanan Sukan & Olahraga SK Pandan Jaya Kali Ke-30 2025</h1>
+            <h2>Pendaftaran Pertandingan 5x100m Terbuka (Ibu Bapa dan Guru)</h2>
+        </div>
+        <div class="info">
+            <p><strong>Tempat:</strong> Stadium MPAJ</p>
+            <p><strong>Waktu:</strong> 7:30 pagi - 1:00 petang</p>
+        </div>
+        
+        <p class="terhad-notice"><strong>Perhatian:</strong> Tempat adalah terhad dan penyertaan dihadkan kepada 12 lelaki & 8 perempuan.</p>
+        
+        <form name="submit-to-google-sheet" id="pendaftaran-form" class="registration-form">
+            <h3>Borang Pendaftaran</h3>
+            <div class="form-group">
+                <label for="nama">Nama Penuh:</label>
+                <input type="text" id="nama" name="nama" required>
+            </div>
+            <div class="form-group">
+                <label for="umur">Umur:</label>
+                <input type="number" id="umur" name="umur" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Jantina:</label>
+                <div class="radio-group">
+                    <input type="radio" id="lelaki" name="jantina" value="Lelaki" required>
+                    <label for="lelaki">Lelaki</label>
+                    <input type="radio" id="perempuan" name="jantina" value="Perempuan">
+                    <label for="perempuan">Perempuan</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="telefon">No. Telefon:</label>
+                <input type="tel" id="telefon" name="telefon" required>
+            </div>
+            <div class="form-group waiver">
+                <input type="checkbox" id="waiver" name="waiver" value="Setuju" required>
+                <label for="waiver">Saya dengan ini mengesahkan bahawa saya mengambil bahagian dalam acara ini atas risiko saya sendiri dan saya tidak akan mempertanggungjawabkan pihak penganjur terhadap sebarang kecederaan, kemalangan, atau kerugian yang mungkin berlaku semasa atau akibat daripada penyertaan saya.</label>
+            </div>
+            <button type="submit">Hantar</button>
+        </form>
+        <p id="status-mesej"></p>
+    </div>
+
+    <script>
+        // URL anda telah dimasukkan di sini
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw6sywuURxLt0T0eUf2hbMH3vAOc5AM9jFaS2qKtYpLbM_f-33n9IlnKu2tzJnRhMXW/exec';
+        const form = document.forms['submit-to-google-sheet'];
+        const statusMesej = document.getElementById('status-mesej');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            statusMesej.textContent = 'Menghantar...';
+            
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => response.json()) 
+                .then(data => {
+                    if (data.result === 'success') {
+                        statusMesej.style.color = 'green';
+                        statusMesej.textContent = 'Terima kasih! Pendaftaran anda telah berjaya dihantar.';
+                        form.reset();
+                    } else if (data.result === 'quota_penuh') {
+                        statusMesej.style.color = 'red';
+                        statusMesej.textContent = data.message;
+                    } else {
+                        throw new Error(data.error || 'Ralat tidak diketahui');
+                    }
+                    setTimeout(() => { statusMesej.textContent = ''; }, 6000);
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    statusMesej.textContent = 'Maaf, berlaku ralat. Sila cuba lagi.';
+                });
+        });
+    </script>
+</body>
+</html>
